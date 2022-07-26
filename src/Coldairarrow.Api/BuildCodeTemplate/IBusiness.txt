@@ -1,0 +1,45 @@
+﻿using Coldairarrow.Entity.%areaName%;
+using Coldairarrow.Util;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Coldairarrow.Business.%areaName%
+{
+    public interface I%entityName%Business
+    {
+        /// <summary>
+        /// 分页获取数据
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        Task<PageResult<%entityName%>> GetDataListAsync(PageInput<ConditionDTO> input);
+
+        /// <summary>
+        /// 获取单条数据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<%entityName%> GetTheDataAsync(string id);
+
+        /// <summary>
+        /// 添加数据
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        Task AddDataAsync(%entityName% data);
+
+        /// <summary>
+        /// 更新数据
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        Task UpdateDataAsync(%entityName% data);
+
+        /// <summary>
+        /// 批量删除
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        Task DeleteDataAsync(List<string> ids);
+    }
+}
