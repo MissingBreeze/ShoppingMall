@@ -1,5 +1,6 @@
 ﻿using Coldairarrow.Business.%areaName%;
 using Coldairarrow.Entity.%areaName%;
+using Coldairarrow.Entity.%areaName%.Dto;
 using Coldairarrow.Util;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace Coldairarrow.Api.Controllers.%areaName%
         #region 获取
 
         [HttpPost]
-        public async Task<PageResult<%entityName%>> GetDataList(PageInput<ConditionDTO> input)
+        public async Task<PageResult<%outDtoName%>> GetDataList(PageInput<%searchDtoName%> input)
         {
             return await %_busName%.GetDataListAsync(input);
         }

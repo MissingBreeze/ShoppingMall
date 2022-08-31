@@ -1,0 +1,8 @@
+﻿
+namespace Coldairarrow.Entity.%areaName%.Dto
+{
+    public class %searchDtoName%
+    {
+        
+    }
+}

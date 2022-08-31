@@ -1,4 +1,5 @@
 ﻿using Coldairarrow.Entity.%areaName%;
+using Coldairarrow.Entity.%areaName%.Dto;
 using Coldairarrow.Util;
 using EFCore.Sharding;
 using LinqKit;
@@ -23,19 +24,19 @@ namespace Coldairarrow.Business.%areaName%
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<PageResult<%entityName%>> GetDataListAsync(PageInput<ConditionDTO> input)
+        public async Task<PageResult<%outDtoName%>> GetDataListAsync(PageInput<%searchDtoName%> input)
         {
             var q = GetIQueryable();
             var where = LinqHelper.True<%entityName%>();
             var search = input.Search;
 
             //筛选
-            if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
+            /*if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
             {
                 var newWhere = DynamicExpressionParser.ParseLambda<%entityName%, bool>(
                     ParsingConfig.Default, false, $@"{search.Condition}.Contains(@0)", search.Keyword);
                 where = where.And(newWhere);
-            }
+            }*/
 
             return await q.Where(where).GetPageResultAsync(input);
         }
@@ -45,7 +46,7 @@ namespace Coldairarrow.Business.%areaName%
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<%entityName%> GetTheDataAsync(string id)
+        public async Task<%outDtoName%> GetTheDataAsync(string id)
         {
             return await GetEntityAsync(id);
         }

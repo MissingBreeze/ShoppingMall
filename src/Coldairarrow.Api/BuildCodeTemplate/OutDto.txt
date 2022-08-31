@@ -1,0 +1,9 @@
+﻿using Coldairarrow.Entity.%areaName%;
+
+namespace Coldairarrow.Entity.%areaName%.Dto
+{
+    public class %outDtoName% : %entityName%
+    {
+        
+    }
+}

@@ -103,6 +103,8 @@ $@"        <a-form-model-item label=""{aField.Description}"" prop=""{aField.Name
                         {$"%selectOptions%",string.Join("\r\n",selectOptionsList) },
                         {$"%listColumns%",string.Join("\r\n",listColumnsList) },
                         {$"%formColumns%",string.Join("\r\n",formColumnsList) },
+                        {$"%searchDtoName%",subFolder + "SearchDto" },
+                        {$"%outDtoName%",subFolder + "OutDto" },
                     };
 
                     //buildTypes,实体层=0,业务层=1,接口层=2,页面层=3
@@ -132,6 +134,22 @@ $@"        <a-form-model-item label=""{aField.Description}"" prop=""{aField.Name
                             "Coldairarrow.Business",
                             _areaName,
                             $"{entityName}Business.cs");
+                        WriteCode(renderParamters, tmpFileName, savePath);
+
+                        // 业务相关类
+                        tmpFileName = "SearchDto.txt";
+                        savePath = Path.Combine(
+                            _solutionPath,
+                            "Coldairarrow.Entity",
+                            _areaName,
+                            $"{subFolder}SearchDto.cs");
+                        WriteCode(renderParamters, tmpFileName, savePath);
+                        tmpFileName = "OutDto.txt";
+                        savePath = Path.Combine(
+                            _solutionPath,
+                            "Coldairarrow.Entity",
+                            _areaName,
+                            $"{subFolder}OutDto.cs");
                         WriteCode(renderParamters, tmpFileName, savePath);
                     }
                     //接口层
@@ -186,6 +204,7 @@ $@"        <a-form-model-item label=""{aField.Description}"" prop=""{aField.Name
         /// </summary>
         /// <param name="tableInfo"></param>
         /// <param name="tableName"></param>
+        /// <param name="nameSpace"></param>
         private void BuildEntity(List<TableInfo> tableInfo, string tableName, string nameSpace)
         {
             nameSpace = $@"Coldairarrow.Entity.{nameSpace}";
