@@ -22,7 +22,8 @@ namespace Coldairarrow.Api.Controllers.Base_Manage
         //[AllowAnonymous]
         public IActionResult UploadFileByForm(IFormFile formFile)
         {
-            var file = formFile;
+            var upfile = Request.Form.Files;
+            var file = upfile[0];
             if (file == null)
                 return JsonContent(new { status = "error" }.ToJson());
 
@@ -42,10 +43,12 @@ namespace Coldairarrow.Api.Controllers.Base_Manage
                 name = file.FileName,
                 status = "done",
                 thumbUrl = url,
-                url = url
+                url = path
             };
 
             return JsonContent(res.ToJson());
         }
+
+
     }
 }

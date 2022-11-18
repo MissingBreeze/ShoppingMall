@@ -2,6 +2,7 @@
 using Coldairarrow.Business.Cache;
 using Coldairarrow.Entity;
 using Coldairarrow.Entity.Base_Manage;
+using Coldairarrow.Entity.ShoppingMall.Account;
 using Coldairarrow.IBusiness;
 using Coldairarrow.Util;
 using EFCore.Sharding;
@@ -38,17 +39,26 @@ namespace Coldairarrow.Business.Base_Manage
 
         public async Task<PageResult<Base_UserDTO>> GetDataListAsync(PageInput<Base_UsersInputDTO> input)
         {
-            Expression<Func<Base_User, Base_Department, Base_UserDTO>> select = (a, b) => new Base_UserDTO
+            Expression<Func<Base_User, Base_User, Base_User, Base_Role, BasicAccount, Base_UserDTO>> select = (a, b, c, d, e) => new Base_UserDTO
             {
-                DepartmentName = b.Name
+                ParentName = b.UserName,
+                BelongName = c.UserName,
+                RoleName = d.RoleName,
+                Balance = e.Balance,
             };
             var search = input.Search;
             select = select.BuildExtendSelectExpre();
             var q_User = search.all ? Db.GetIQueryable<Base_User>() : GetIQueryable();
             var q = from a in q_User.AsExpandable()
-                    join b in Db.GetIQueryable<Base_Department>() on a.DepartmentId equals b.Id into ab
+                    join b in Db.GetIQueryable<Base_User>() on a.ParentId equals b.Id into ab
                     from b in ab.DefaultIfEmpty()
-                    select @select.Invoke(a, b);
+                    join c in Db.GetIQueryable<Base_User>() on a.BelongId equals c.Id into ac
+                    from c in ac.DefaultIfEmpty()
+                    join d in Db.GetIQueryable<Base_Role>() on a.RoleId equals d.Id into ad
+                    from d in ad.DefaultIfEmpty()
+                    join e in Db.GetIQueryable<BasicAccount>() on a.Id equals e.UserId into ae
+                    from e in ae.DefaultIfEmpty()
+                    select @select.Invoke(a, b, c, d, e);
 
             q = q.WhereIf(!search.userId.IsNullOrEmpty(), x => x.Id == search.userId);
             if (!search.keyword.IsNullOrEmpty())
@@ -58,10 +68,28 @@ namespace Coldairarrow.Business.Base_Manage
                       EF.Functions.Like(x.UserName, keyword)
                       || EF.Functions.Like(x.RealName, keyword));
             }
+            if (!_operator.IsAdmin())
+                q = q.Where(x => x.Id != "Admin");
+            // 角色过滤
+            if (!search.roleType.IsNullOrEmpty() && search.roleType != "0")
+            {
+                RoleTypes role = (RoleTypes)Enum.Parse(typeof(RoleTypes), search.roleType);
+                q = q.Where(x => x.RoleName == role.ToString());
+            }
+            if(_operator.Property.RoleName == RoleTypes.客服.ToString())
+            {
+                q = q.Where(x => x.BelongId.Equals(_operator.UserId));
+            }
 
             var list = await q.GetPageResultAsync(input);
-
-            await SetProperty(list.Data);
+            //await SetProperty(list.Data);
+            list.Data.ForEach(x =>
+            {
+                if (x.Balance == null)
+                {
+                    x.Balance = 0;
+                }
+            });
 
             return list;
 
@@ -81,9 +109,10 @@ namespace Coldairarrow.Business.Base_Manage
                 users.ForEach(aUser =>
                 {
                     var roleList = userRoles.Where(x => x.UserId == aUser.Id);
-                    aUser.RoleIdList = roleList.Select(x => x.RoleId).ToList();
-                    aUser.RoleNameList = roleList.Select(x => x.RoleName).ToList();
+                    aUser.RoleId = roleList.Select(x => x.RoleId).FirstOrDefault();
+                    aUser.RoleName = roleList.Select(x => x.RoleName).FirstOrDefault();
                 });
+                
             }
         }
 
@@ -93,17 +122,61 @@ namespace Coldairarrow.Business.Base_Manage
                 return null;
             else
             {
-                PageInput<Base_UsersInputDTO> input = new PageInput<Base_UsersInputDTO>
+                //PageInput<Base_UsersInputDTO> input = new PageInput<Base_UsersInputDTO>
+                //{
+                //    Search = new Base_UsersInputDTO
+                //    {
+                //        all = true,
+                //        userId = id
+                //    }
+                //};
+                //return (await GetDataListAsync(input)).Data.FirstOrDefault();
+
+                Expression<Func<Base_User, Base_User, Base_User, Base_Role, Base_UserDTO>> select = (a, b, c, d) => new Base_UserDTO
                 {
-                    Search = new Base_UsersInputDTO
-                    {
-                        all = true,
-                        userId = id
-                    }
+                    ParentName = b.UserName,
+                    BelongName = c.UserName,
+                    RoleName = d.RoleName
                 };
-                return (await GetDataListAsync(input)).Data.FirstOrDefault();
+                select = select.BuildExtendSelectExpre();
+                var q_User = GetIQueryable();
+                var q = from a in q_User.AsExpandable()
+                        join b in Db.GetIQueryable<Base_User>() on a.ParentId equals b.Id into ab
+                        from b in ab.DefaultIfEmpty()
+                        join c in Db.GetIQueryable<Base_User>() on a.BelongId equals c.Id into ac
+                        from c in ac.DefaultIfEmpty()
+                        join d in Db.GetIQueryable<Base_Role>() on a.RoleId equals d.Id into ad
+                        from d in ad.DefaultIfEmpty()
+                        select @select.Invoke(a, b, c, d);
+
+                q = q.WhereIf(!id.IsNullOrEmpty(), x => x.Id == id);
+
+                return await q.FirstOrDefaultAsync();
+
             }
         }
+
+        /// <summary>
+        /// 供给缓存使用的获取用户数据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<Base_UserDTO> GetUser(string id)
+        {
+            Expression<Func<Base_User, Base_Role, Base_UserDTO>> select = (a, b) => new Base_UserDTO
+            {
+                RoleName = b.RoleName
+            };
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                    where a.Id.Equals(id)
+                    join b in Db.GetIQueryable<Base_Role>() on a.RoleId equals b.Id into ab
+                    from b in ab.DefaultIfEmpty()
+                    select @select.Invoke(a, b);
+
+            return await q.FirstOrDefaultAsync();
+        }
+
 
         [DataAddLog(UserLogType.系统用户管理, "RealName", "用户")]
         [DataRepeatValidate(
@@ -113,7 +186,7 @@ namespace Coldairarrow.Business.Base_Manage
         public async Task AddDataAsync(UserEditInputDTO input)
         {
             await InsertAsync(_mapper.Map<Base_User>(input));
-            await SetUserRoleAsync(input.Id, input.RoleIdList);
+            await SetUserRoleAsync(input.Id, input.RoleId);
         }
 
         [DataEditLog(UserLogType.系统用户管理, "RealName", "用户")]
@@ -127,7 +200,7 @@ namespace Coldairarrow.Business.Base_Manage
                 throw new BusException("禁止更改超级管理员！");
 
             await UpdateAsync(_mapper.Map<Base_User>(input));
-            await SetUserRoleAsync(input.Id, input.RoleIdList);
+            await SetUserRoleAsync(input.Id, input.RoleId);
             await _userCache.UpdateCacheAsync(input.Id);
         }
 
@@ -147,18 +220,17 @@ namespace Coldairarrow.Business.Base_Manage
 
         #region 私有成员
 
-        private async Task SetUserRoleAsync(string userId, List<string> roleIds)
+        private async Task SetUserRoleAsync(string userId, string roleId)
         {
-            roleIds = roleIds ?? new List<string>();
-            var userRoleList = roleIds.Select(x => new Base_UserRole
+            var userRole = new Base_UserRole()
             {
                 Id = IdHelper.GetId(),
                 CreateTime = DateTime.Now,
                 UserId = userId,
-                RoleId = x
-            }).ToList();
+                RoleId = roleId
+            };
             await Db.DeleteAsync<Base_UserRole>(x => x.UserId == userId);
-            await Db.InsertAsync(userRoleList);
+            await Db.InsertAsync(userRole);
         }
 
         #endregion

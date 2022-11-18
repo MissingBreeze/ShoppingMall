@@ -31,7 +31,7 @@ export default {
       wrapperCol: { xs: { span: 24 }, sm: { span: 13 } },
       entity: {
         Img: require('@/assets/logo.png'),
-        Imgs: [require('@/assets/logo.png')]
+        Imgs: [require('@/assets/logo.png'), require('@/assets/logo.png')]
       }
     }
   },

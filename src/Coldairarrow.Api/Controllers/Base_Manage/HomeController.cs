@@ -91,5 +91,6 @@ namespace Coldairarrow.Api.Controllers.Base_Manage
         {
             return await _permissionBus.GetUserMenuListAsync(_operator.UserId);
         }
+
     }
 }

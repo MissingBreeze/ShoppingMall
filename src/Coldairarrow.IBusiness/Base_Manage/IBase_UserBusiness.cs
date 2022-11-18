@@ -14,13 +14,20 @@ namespace Coldairarrow.Business.Base_Manage
         Task AddDataAsync(UserEditInputDTO input);
         Task UpdateDataAsync(UserEditInputDTO input);
         Task DeleteDataAsync(List<string> ids);
+
+        /// <summary>
+        /// 供给缓存使用的获取用户数据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<Base_UserDTO> GetUser(string id);
     }
 
     [Map(typeof(Base_User))]
     public class UserEditInputDTO : Base_User
     {
         public string newPwd { get; set; }
-        public List<string> RoleIdList { get; set; }
+        public string RoleId { get; set; }
     }
 
     public class Base_UsersInputDTO
@@ -28,5 +35,9 @@ namespace Coldairarrow.Business.Base_Manage
         public bool all { get; set; }
         public string userId { get; set; }
         public string keyword { get; set; }
+        /// <summary>
+        /// 要过滤的角色，1管理员，2客服，3用户
+        /// </summary>
+        public string roleType { get; set; }
     }
 }

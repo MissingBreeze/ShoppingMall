@@ -27,7 +27,7 @@ const uuid = require('uuid')
 
 export default {
   props: {
-    value: '', //字符串或字符串数组
+    value: '', // 字符串或字符串数组
     maxCount: {
       type: Number,
       default: 1
@@ -50,11 +50,12 @@ export default {
       fileList: [],
       internelValue: {},
       headers: { Authorization: 'Bearer ' + TokenCache.getToken() },
+      dateFiles: []
     }
   },
   watch: {
     value(val) {
-      //内部触发事件不处理,仅回传数据
+      // 内部触发事件不处理,仅回传数据
       if (val == this.internelValue) {
         return
       }
@@ -94,6 +95,8 @@ export default {
         this.fileList = urls.map(x => {
           return { name: x, uid: uuid.v4(), status: 'done', url: x }
         })
+      } else {
+        this.fileList = []
       }
     },
     handleCancel() {
@@ -105,15 +108,20 @@ export default {
     },
     handleChange({ file, fileList }) {
       this.fileList = fileList
-
       if (file.status == 'done' || file.status == 'removed') {
         var urls = this.fileList.filter(x => x.status == 'done').map(x => x.url || x.response.url)
         var newValue = this.maxCount == 1 ? urls[0] : urls
         this.internelValue = newValue
-        //双向绑定
+        // 双向绑定
         this.$emit('input', newValue)
       }
-    }
+    },
+    customRequest (data) {
+      // console.log(data)
+      // this.fileList.forEach(element => {
+      //   element.status = 'done'
+      // })
+    },
   }
 }
 </script>

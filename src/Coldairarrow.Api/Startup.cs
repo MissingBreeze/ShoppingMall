@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Util;
+﻿using Coldairarrow.Api.Controllers;
+using Coldairarrow.Util;
 using EFCore.Sharding;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,7 +38,7 @@ namespace Coldairarrow.Api
                 });
             });
             services.AddHttpContextAccessor();
-
+            services.AddSignalR();
             //swagger
             services.AddOpenApiDocument(settings =>
             {
@@ -58,6 +59,12 @@ namespace Coldairarrow.Api
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            //app.UseWebSockets();
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllers();
+            //    endpoints.MapHub<SignalRHub>("/SignalRHub");
+            //});
             //跨域
             app.UseCors(x =>
                 {
@@ -87,7 +94,14 @@ namespace Coldairarrow.Api
                 })
                 .UseOpenApi()//添加swagger生成api文档（默认路由文档 /swagger/v1/swagger.json）
                 .UseSwaggerUi3()//添加Swagger UI到请求管道中(默认路由: /swagger).
+                .UseWebSockets()
+                .UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                    endpoints.MapHub<SignalRHub>("/SignalRHub");
+                })
                 ;
+
         }
     }
 }

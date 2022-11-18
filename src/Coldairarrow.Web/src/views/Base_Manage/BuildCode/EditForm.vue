@@ -39,6 +39,7 @@ export default {
       visible: false,
       confirmLoading: false,
       entity: {
+        areaName: 'ShoppingMall',
         buildTypes: []
       },
       rules: {
@@ -50,7 +51,7 @@ export default {
   methods: {
     init() {
       this.visible = true
-      this.entity = { buildTypes: ['0', '1', '2', '3'] }
+      this.entity = { areaName: 'ShoppingMall', buildTypes: ['0', '1', '2', '3'] }
       this.$nextTick(() => {
         this.$refs['form'].clearValidate()
       })

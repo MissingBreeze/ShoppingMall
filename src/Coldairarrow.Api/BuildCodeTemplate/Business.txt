@@ -3,10 +3,12 @@ using Coldairarrow.Entity.%areaName%.Dto;
 using Coldairarrow.Util;
 using EFCore.Sharding;
 using LinqKit;
+using System;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Coldairarrow.Business.%areaName%
@@ -26,19 +28,11 @@ namespace Coldairarrow.Business.%areaName%
         /// <returns></returns>
         public async Task<PageResult<%outDtoName%>> GetDataListAsync(PageInput<%searchDtoName%> input)
         {
-            var q = GetIQueryable();
-            var where = LinqHelper.True<%entityName%>();
-            var search = input.Search;
-
-            //筛选
-            /*if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
+            Expression<Func<%entityName%, %outDtoName%>> select = (a) => new %outDtoName%
             {
-                var newWhere = DynamicExpressionParser.ParseLambda<%entityName%, bool>(
-                    ParsingConfig.Default, false, $@"{search.Condition}.Contains(@0)", search.Keyword);
-                where = where.And(newWhere);
-            }*/
-
-            return await q.Where(where).GetPageResultAsync(input);
+            };
+            var q = GetIQueryable().Select(select);
+            return await q.GetPageResultAsync(input);
         }
 
         /// <summary>

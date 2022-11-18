@@ -49,27 +49,16 @@ namespace Coldairarrow.Entity.Base_Manage
         public String RealName { get; set; }
 
         /// <summary>
-        /// 性别
+        /// 上级id
         /// </summary>
-        public Sex Sex { get; set; }
-
+        public String ParentId { get; set; }
         /// <summary>
-        /// 出生日期
+        /// 所属客服Id
         /// </summary>
-        public DateTime? Birthday { get; set; }
-
+        public String BelongId { get; set; }
         /// <summary>
-        /// 所属部门Id
+        /// 角色Id
         /// </summary>
-        public String DepartmentId { get; set; }
-    }
-
-    public enum Sex
-    {
-        [Description("男人")]
-        Man = 1,
-
-        [Description("女人")]
-        Woman = 0
+        public String RoleId { get; set; }
     }
 }

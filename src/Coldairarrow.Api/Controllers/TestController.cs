@@ -26,13 +26,10 @@ namespace Coldairarrow.Api.Controllers
             Base_User base_User = new Base_User
             {
                 Id = Guid.NewGuid().ToString(),
-                Birthday = DateTime.Now,
                 CreateTime = DateTime.Now,
                 CreatorId = Guid.NewGuid().ToString(),
-                DepartmentId = Guid.NewGuid().ToString(),
                 Password = Guid.NewGuid().ToString(),
                 RealName = Guid.NewGuid().ToString(),
-                Sex = Sex.Man,
                 UserName = Guid.NewGuid().ToString()
             };
 

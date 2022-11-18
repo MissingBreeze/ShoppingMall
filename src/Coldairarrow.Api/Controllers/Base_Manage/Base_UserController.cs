@@ -48,6 +48,7 @@ namespace Coldairarrow.Api.Controllers.Base_Manage
         #region 提交
 
         [HttpPost]
+        [ApiPermission("Base_User.Add")]
         public async Task SaveData(UserEditInputDTO input)
         {
             if (!input.newPwd.IsNullOrEmpty())

@@ -16,8 +16,26 @@
       <a-form layout="inline">
         <a-row :gutter="48">
           <a-col :md="6" :sm="24">
-            <a-form-item label="关键字">
+            <a-form-item label="用户名">
               <a-input v-model="queryParam.keyword" placeholder />
+            </a-form-item>
+          </a-col>
+          <a-col :md="6" :sm="24">
+            <a-form-item label="角色">
+              <a-select default-value="100" style="width: 120px" @change="handleChange">
+                <a-select-option value="100">
+                  全部
+                </a-select-option>
+                <a-select-option value="2">
+                  管理员
+                </a-select-option>
+                <a-select-option value="3">
+                  客服
+                </a-select-option>
+                <a-select-option value="4">
+                  用户
+                </a-select-option>
+              </a-select>
             </a-form-item>
           </a-col>
           <a-col :md="6" :sm="24">
@@ -45,6 +63,8 @@
           <template v-if="hasPerm('Base_User.Edit')">
             <a @click="handleEdit(record.Id)">编辑</a>
             <a-divider type="vertical" />
+            <a @click="handleAccount(record.Id, record.Balance)">资金</a>
+            <a-divider type="vertical" />
           </template>
           <a v-if="hasPerm('Base_User.Delete')" @click="handleDelete([record.Id])">删除</a>
         </template>
@@ -52,25 +72,27 @@
     </a-table>
 
     <edit-form ref="editForm" :afterSubmit="getDataList"></edit-form>
+    <account ref="account" :afterSubmit="getDataList"></account>
   </a-card>
 </template>
 
 <script>
 import EditForm from './EditForm'
+import Account from './Account'
 
 const columns = [
   { title: '用户名', dataIndex: 'UserName', width: '10%' },
   { title: '姓名', dataIndex: 'RealName', width: '10%' },
-  { title: '性别', dataIndex: 'SexText', width: '5%' },
-  { title: '出生日期', dataIndex: 'BirthdayText', width: '10%' },
-  { title: '所属部门', dataIndex: 'DepartmentName', width: '10%' },
-  { title: '所属角色', dataIndex: 'RoleNames', width: '30%' },
+  { title: '上级', dataIndex: 'ParentName', width: '10%' },
+  { title: '所属客服', dataIndex: 'BelongName', width: '10%' },
+  { title: '所属角色', dataIndex: 'RoleName', width: '10%' },
   { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
 ]
 
 export default {
   components: {
-    EditForm
+    EditForm,
+    Account,
   },
   mounted() {
     this.getDataList()
@@ -155,6 +177,16 @@ export default {
           this.$message.error(resJson.Msg)
         }
       })
+    },
+    handleAccount(id, balance) {
+      this.$refs.account.openForm({ UserId: id, Balance: balance })
+    },
+    handleChange(value) {
+      if (value != 100) {
+        this.queryParam.roleType = value
+      } else {
+        this.queryParam.roleType = null
+      }
     }
   }
 }

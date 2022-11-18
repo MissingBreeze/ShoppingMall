@@ -38,6 +38,14 @@ namespace Coldairarrow.Api
             return Path.Combine(rootPath, path);
         }
 
+        protected string GetRootPath()
+        {
+            string rootPath = HttpContext.RequestServices.GetService<IWebHostEnvironment>().WebRootPath;
+
+            return rootPath;
+        }
+
+
         /// <summary>
         /// 返回JSON
         /// </summary>

@@ -29,16 +29,17 @@ namespace Coldairarrow.Business.Base_Manage
             //不需要权限的菜单
             where = where.Or(x => x.NeedAction == false);
 
-            if (userId == GlobalAssemblies.ADMINID || theUser.RoleType.HasFlag(RoleTypes.超级管理员))
+            if (userId == GlobalAssemblies.ADMINID || theUser.RoleName.Equals(RoleTypes.超级管理员.ToString()))
                 where = where.Or(x => true);
             else
             {
-                var actionIds = from a in Db.GetIQueryable<Base_UserRole>()
+                var actionIds = from a in Db.GetIQueryable<Base_User>()
                                 join b in Db.GetIQueryable<Base_RoleAction>() on a.RoleId equals b.RoleId
-                                where a.UserId == userId
+                                where a.Id == userId
                                 select b.ActionId;
 
                 where = where.Or(x => actionIds.Contains(x.Id));
+ 
             }
 
             return await GetIQueryable().Where(where).Select(x => x.Id).ToArrayAsync();

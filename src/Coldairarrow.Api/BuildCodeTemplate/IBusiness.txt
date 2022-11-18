@@ -20,7 +20,7 @@ namespace Coldairarrow.Business.%areaName%
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<%entityName%> GetTheDataAsync(string id);
+        Task<%outDtoName%> GetTheDataAsync(string id);
 
         /// <summary>
         /// 添加数据
